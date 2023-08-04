@@ -1,5 +1,0 @@
-SourceTreeでローカルにクローンを作成
-VSCodeで.gitignoreファイルがあるか確認
-test.txtで試しにPRをしてみる。
-連携が取れてれば、test.txtを削除する。
-
