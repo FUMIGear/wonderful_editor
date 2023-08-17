@@ -1,6 +1,5 @@
 *.rbc
 capybara-*.html
-.rspec
 /db/*.sqlite3
 /db/*.sqlite3-journal
 /db/*.sqlite3-[0-9]*
@@ -67,3 +66,6 @@ yarn-debug.log*
 /storage/*
 !/storage/.keep
 /public/uploads
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key

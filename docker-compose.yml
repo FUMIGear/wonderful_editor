@@ -1,0 +1,12 @@
+# postgreSQL
+version: "3.1"
+
+services:
+  database:
+    image: postgres
+    # restart: always # これがあると、dockerソフト起動時にrunningになっちゃう。
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
