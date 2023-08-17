@@ -41,9 +41,9 @@ group :development, :test do
   gem "rubocop-rails"
   gem "rubocop-rspec"
   # Task5-3で追加（Rspec環境）
-  gem 'rspec-rails', '~> 4.0.1'
-	gem 'factory_bot_rails'
-	gem 'faker'
+  gem "factory_bot_rails"
+  gem "faker"
+  gem "rspec-rails", "~> 4.0.1"
 end
 
 group :development do
