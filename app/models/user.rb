@@ -7,4 +7,13 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   include DeviseTokenAuth::Concerns::User
+
+  #relationの設定
+  has_many :article, dependent: :destroy
+  has_many :favorite, dependent: :destroy
+  has_many :comment, dependent: :destroy
+
+  # favoriteとcommentを中間テーブルとして設定
+  # has_many:articles, through: :favorite
+  # has_many:articles, through: :comment
 end
