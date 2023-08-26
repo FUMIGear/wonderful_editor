@@ -16,4 +16,8 @@ class User < ApplicationRecord
   # favoriteとcommentを中間テーブルとして設定
   # has_many:articles, through: :favorite
   # has_many:articles, through: :comment
+
+  # Task6-3の模範回答
+  validates :name, presence: true
+
 end
