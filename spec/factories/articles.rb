@@ -1,4 +1,5 @@
 FactoryBot.define do
+  # デフォルト
   # factory :article do
   #   title { "MyString" }
   #   body { "MyText" }
@@ -11,6 +12,13 @@ FactoryBot.define do
     body {Faker::Lorem.paragraph(sentence_count: 6)}
     user
   end
+  # 模範回答：動けばいいと思ってるので、自分の回答を採用した。
+  # factory :article do
+  #   title { Faker::Lorem.word }
+  #   body { Faker::Lorem.sentence }
+  #   user
+  # end
+  # 最初
   # factory :user do
   #   name { "testname" }
   #   email { "test@email23" }
