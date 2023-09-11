@@ -12,10 +12,10 @@ RSpec.describe "api::v1::Articles", type: :request do
     subject { get(api_v1_articles_path) }
     # subject { get(articles_v1_api_path) } #違う
     it "ユーザーの一覧が取得できる" do
-      binding.pry #subject前の動作を確認できる。
+      # binding.pry #subject前の動作を確認できる。
       subject
       res = JSON.parse(response.body) #JSON形式に変換（変換後は配列）
-      binding.pry
+      # binding.pry
       # Task7-1の自分の回答（コメントアウト）
       # expect(res.length).to eq 3 #３つユーザつくったので、配列数も３つじゃないといけない
       # expect(res[0].keys).to eq ["title", "body"] #keyが合ってるかテストする
@@ -39,7 +39,7 @@ RSpec.describe "api::v1::Articles", type: :request do
         # binding.pry #articleが問題なくできているか確認
         subject #URIを実行
         res = JSON.parse(response.body) #結果をres変数に入れる
-        binding.pry #articleが問題なくできているか確認
+        # binding.pry #articleが問題なくできているか確認
         expect(response).to have_http_status(200) #200ステータスか確認
         # 模範回答
         expect(res["id"]).to eq article.id
@@ -56,10 +56,67 @@ RSpec.describe "api::v1::Articles", type: :request do
     context "指定したidの記事が存在しない場合" do
       let(:article_id) { 100000 }
       it "記事が見つからない" do
-        binding.pry #article_idが10000になっているか、expect文が合っているか確認
+        # binding.pry #article_idが10000になっているか、expect文が合っているか確認
         expect { subject }.to raise_error ActiveRecord::RecordNotFound
       end
     end
+  end
+
+  # create
+  describe "POST /api/v1/articles" do
+    subject {  post(api_v1_articles_path, params: params)}
+    # let(:user) { create(:user) } #ユーザが必須。変数はいらないかも
+    # 正常系
+    let(:params) { {article: attributes_for(:article)}} #ここを分解しないといけない？
+    let(:current_user) { create(:user) } #ユーザが必須。変数はいらないかも
+    context "タイトルおよび本文にデータがあり、ログインしている時" do
+      # binding.pry
+      it "記事が作成される" do
+        binding.pry
+        # allow_any_instance_of(User).to receive(:current_user).and_return(user)
+        allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
+        # expect { subject }.to change { Article.count }.by(1)
+        expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
+        res = JSON.parse(response.body)
+        binding.pry
+        expect(res["title"]).to eq params[:article][:title]
+        expect(res["body"]).to eq params[:article][:body]
+        # expect(res["user"]["id"]).to eq article.user.id
+        expect(res["user"]["id"]).to eq current_user.id
+        expect(res["user"].keys).to eq ["id", "name", "email"]
+        expect(response).to have_http_status(200)
+      end
+    end
+    # 異常系
+    # context "titleに文字列が入っていないとき" do
+    #   it "記事の作成に失敗する" do
+    #     binding.pry
+    #     params[:article][:title] = nil
+    #     # expect { subject }.to raise_error(ActionController::ParameterMissing)
+    #     # expect { subject }.to change { Article.count }.by(1)
+    #     expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
+    #     res = JSON.parse(response.body)
+    #     binding.pry
+    #     expect { subject }.to raise_error(ActionController::ParameterMissing)
+    #   end
+    # end
+    # context "bodyに文字列が入っていないとき" do
+    #   let(:params) { attributes_for(:user) }
+    #   it "記事の作成に失敗する" do
+    #     expect { subject }.to change { Article.count }.by(1)
+    #     binding.pry
+    #     expect { subject }.to raise_error(ActionController::ParameterMissing)
+    #     res = JSON.parse(response.body)
+    #     binding.pry
+    #     expect(res["title"]).to eq params[:article][:title]
+    #   end
+    # end
+    # context "userログインしていないとき" do
+    #   let(:params) { attributes_for(:user) }
+    #   it "記事の作成に失敗する" do
+    #     # expect { subject }.to raise_error(ActionController::ParameterMissing)
+    #   end
+    # end
   end
 
 end
