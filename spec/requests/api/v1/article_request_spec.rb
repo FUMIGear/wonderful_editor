@@ -148,7 +148,7 @@ RSpec.describe "api::v1::Articles", type: :request do
         # binding.pry
         expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
         change { article.reload.body }.from(article.body).to(params[:article][:body])
-        binding.pry
+        # binding.pry
         expect(response).to have_http_status(:ok)
         # allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
         # expect { subject }.to change { Article.find(article_id).title }.to("new_title")
@@ -182,6 +182,33 @@ RSpec.describe "api::v1::Articles", type: :request do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+  end
+
+  # hellow_world_railsのuser_specから拝借
+  describe "DELETE api/v1/articles/:id" do #destroy
+    subject { delete(api_v1_article_path(article.id))}
+    before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) }
+    let(:current_user) { create(:user) }
+    context "自分が所持している記事のレコードを削除しようとするとき" do
+      let(:article) { create(:article, user: current_user)}
+      it "自分で作った記事を削除できる" do
+        # binding.pry
+        expect { subject }.to change { Article.count }.by(-1)
+        expect(response).to have_http_status(:no_content)
+      end
+    end
+    context "自分が所持していない記事のレコードを削除しようとするとき" do
+      let(:other_user) { create(:user) }
+      let(:article) { create(:article, user: other_user)}
+      it "削除に失敗する" do
+        # binding.pry
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+        # subject
+      end
+    end
+
+
+
   end
 
 end

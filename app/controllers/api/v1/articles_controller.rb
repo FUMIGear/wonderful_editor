@@ -64,8 +64,15 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
 
   # DELETE /articles/1
   # DELETE /articles/1.json
+  # ほぼupdateのコピペ
   def destroy
-    @article.destroy
+    binding.pry
+    article = current_user.article.find(params[:id])
+    if article.user_id == current_user.id #ユーザ確認。
+      # binding.pry
+      article.destroy
+      render json: article, serializer: Api::V1::ArticlePreviewSerializer
+    end
   end
 
   private
