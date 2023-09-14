@@ -31,7 +31,7 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
     # @article = Article.new(article_params) #userとの紐付けがない
     # @article2 = current_user.article.new(article_params) #base_apiでcurrent_userを作る。
     @article = current_user.article.create!(article_params)
-    binding.pry
+    # binding.pry
     # @article.user = current_user
     # @article3 = Article.new(article_params, user_id:current_user) #userとの紐付けがない
     # @article2.save
@@ -47,11 +47,19 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # PATCH/PUT /articles/1
   # PATCH/PUT /articles/1.json
   def update
-    if @article.update(article_params)
-      render :show, status: :ok, location: @article
-    else
-      render json: @article.errors, status: :unprocessable_entity
+    # binding.pry
+    article = current_user.article.find(params[:id])
+
+    # @article.update(article_params)
+    if article.user_id == current_user.id #ユーザ確認。
+      # binding.pry
+      article.update(article_params)
+      render json: article, serializer: Api::V1::ArticlePreviewSerializer
     end
+    #   render :show, status: :ok, location: @article
+    # else
+    #   render json: @article.errors, status: :unprocessable_entity
+    # end
   end
 
   # DELETE /articles/1

@@ -72,13 +72,13 @@ RSpec.describe "api::v1::Articles", type: :request do
     context "タイトルおよび本文にデータがあり、ログインしている時" do
       # binding.pry
       it "記事が作成される" do
-        binding.pry
+        # binding.pry
         # allow_any_instance_of(User).to receive(:current_user).and_return(user)
         allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
         # expect { subject }.to change { Article.count }.by(1)
         expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
         res = JSON.parse(response.body)
-        binding.pry
+        # binding.pry
         expect(res["title"]).to eq params[:article][:title]
         expect(res["body"]).to eq params[:article][:body]
         # expect(res["user"]["id"]).to eq article.user.id
@@ -117,6 +117,71 @@ RSpec.describe "api::v1::Articles", type: :request do
     #     # expect { subject }.to raise_error(ActionController::ParameterMissing)
     #   end
     # end
+  end
+
+  # updateメソッド／hello_world_railsのuserからコピペ
+  describe "PATCH api/v1/articles/:id" do #update
+    subject { patch(api_v1_article_path(article.id), params: params) }
+    # let(:article_test){create(:article)}
+    # let(:params) { { article: { title: "fff", body: "test" } } }
+    # let(:user_id) { article_test.user.id }
+    # let(:current_user) { create(:user) }
+    # let(:article) { create(:article) }
+    # let(:article_id) { article.id }
+    # let!(:params) { attributes_for(:article, title: 'other') }
+    # let(:params) { article.attributes }
+    # let(:params) { article(title:"test") }
+    # let(:params) { { article: { title:"new_title", body:article.body } } }
+    let(:params) { { article: attributes_for(:article) } } #変更後
+
+    let(:current_user) { create(:user) }
+    # userがnilなら、current_userはUser.fastになる。（current_userが指定されてれば実行しても意味がない。
+    before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) }
+
+    context "ログインしていて、自分の作った記事の場合" do
+      let(:article) { create(:article, user: current_user) } #元々
+      it '記事を編集できること' do
+        # params = article(title:"new_title")
+        # article.title = "test"c
+        # binding.pry
+        # subject #article.idを指定して、paramsのデータをupdateメソッドに送る。
+        # binding.pry
+        expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
+        change { article.reload.body }.from(article.body).to(params[:article][:body])
+        binding.pry
+        expect(response).to have_http_status(:ok)
+        # allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
+        # expect { subject }.to change { Article.find(article_id).title }.to("new_title")
+        # binding.pry
+        # expect { subject }.not_to change { Article.find(article_id).body }
+
+        # expect { subject }.not_to change(Article, :count)
+        # expect(response).to have_http_status(302)
+        # expect(Article.reload.title).to eq 'other'
+        # allow_any_instance_of(User).to receive(:current_user).and_return(user)
+        # allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
+        # expect { subject }.not_to change(Article, :count)
+
+        # expect { subject }.to change { Article.count }.by(1)
+        # expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
+        # binding.pry
+        # expect { subjet }を
+        # expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
+        # titleとbodyが変わってるかチェックしよう。
+        # binding.pry
+        # not_change { article.reload.title } &
+        # not_change { article.reload.body }
+        # not_change { article.reload.created_at }
+      end
+    end
+    context "自分が所持していない記事のレコードを更新しようとするとき" do
+      let(:other_user) { create(:user) }
+      let!(:article) { create(:article, user: other_user) }
+
+      it "更新できない" do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
   end
 
 end
