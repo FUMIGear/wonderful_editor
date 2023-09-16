@@ -16,27 +16,31 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
     render json: articles, each_serializer: Api::V1::ArticlePreviewSerializer
   end
 
-  # GET /articles/1
-  # GET /articles/1.json
+  # GET api/v1/articles/1
+  # GET api/v1/articles/1.json
   def show
+    # prtivateメソッドのset_articleメソッドが動いて、@article変数が使えるようになる。
     # article = Article.find(params[:id])
-    # binding.pry
+    # binding.pry # @articleにデータが入っているか確認
     # render json: article_show, each_serializer: Api::V1::ArticlePreviewSerializer
     render json: @article, serializer: Api::V1::ArticlePreviewSerializer
   end
 
-  # POST /articles
-  # POST /articles.json
+  # POST api/v1/articles
+  # POST api/v1/articles.json
   def create
+    # binding.pry # パラメータ確認
     # @article = Article.new(article_params) #userとの紐付けがない
-    # @article2 = current_user.article.new(article_params) #base_apiでcurrent_userを作る。
-    @article = current_user.article.create!(article_params)
+    # @article.user = current_user #作ったarticleのuserをcurrent_userにする（強引だが設定できた）
     # binding.pry
-    # @article.user = current_user
-    # @article3 = Article.new(article_params, user_id:current_user) #userとの紐付けがない
+    # @article = current_user.article.new(article_params) #上の２行を同時に実行してみた。
+    # binding.pry
+    article = current_user.article.create(article_params) #ルーティングが設定されていれば、createメソッドは使える。
+    # @article2 = Article.new(article_params, user:current_user) #new→saveメソッドで作ってもいいが、結果的に意味がない。
     # @article2.save
-    render json: @article, serializer: Api::V1::ArticlePreviewSerializer
-
+    # binding.pry # 記事ができているか確認
+    render json: article, serializer: Api::V1::ArticlePreviewSerializer
+    # ↓いらなかった↓
     # if @article.save
     #   render :show, status: :created, location: @article
     # else
@@ -47,31 +51,35 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # PATCH/PUT /articles/1
   # PATCH/PUT /articles/1.json
   def update
-    # binding.pry
+    # binding.pry # パラメータ確認
     article = current_user.article.find(params[:id])
-
-    # @article.update(article_params)
+    # Article.find(params[:id]) #これで特定の記事を取得できる。
+    # current_userが作成したArticle.find(params[:id])であれば表示される。
+    # 違った場合、ActiveRecord::RecordNotFoundというエラーが発生する。
     if article.user_id == current_user.id #ユーザ確認。
       # binding.pry
       article.update(article_params)
+      # @article.update(article_params) #別に@
       render json: article, serializer: Api::V1::ArticlePreviewSerializer
     end
-    #   render :show, status: :ok, location: @article
-    # else
-    #   render json: @article.errors, status: :unprocessable_entity
-    # end
+    # 案の定いらなかった
+      #   render :show, status: :ok, location: @article
+      # else
+      #   render json: @article.errors, status: :unprocessable_entity
+      # end
   end
 
   # DELETE /articles/1
   # DELETE /articles/1.json
   # ほぼupdateのコピペ
   def destroy
-    binding.pry
+    # binding.pry
     article = current_user.article.find(params[:id])
     if article.user_id == current_user.id #ユーザ確認。
       # binding.pry
       article.destroy
-      render json: article, serializer: Api::V1::ArticlePreviewSerializer
+      # binding.pry
+      # render json: article, serializer: Api::V1::ArticlePreviewSerializer
     end
   end
 
