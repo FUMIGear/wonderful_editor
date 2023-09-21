@@ -23,6 +23,7 @@ module WonderfulEditor
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
+    # config.load_defaults 7.0 #参考サイトより
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -48,5 +49,11 @@ module WonderfulEditor
                        request_specs: true
     end
     config.api_only = true
+    # Task9-1で追加（なにこれ？）
+    # config.session_store :cookie_store, key: '_interslice_session' 
+    # config.middleware.use ActionDispatch::Cookies
+    # config.middleware.use config.session_store, config.session_options
+    config.middleware.use ActionDispatch::Flash
+
   end
 end
