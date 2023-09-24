@@ -6,7 +6,13 @@ class Api::V1::Auth::RegistrationsController < DeviseTokenAuth::RegistrationsCon
   # 必要だった。
   def sign_up_params
     # params.permit(:email, :password, :password_confirmation, :name)
-    params.require(:registration).permit(:name, :email, :password, :password_confirmation)
     # params.permit(:email, :password, :name)
+    # params.require(:registration).permit(:name, :email, :password, :password_confirmation) # 自分の回答
+    params.permit(:name, :email, :password, :password_confirmation) #模範回答に合わせた
+  end
+
+  # 模範回答：ついでに更新用のメソッドもオーバーライドしてる
+  def account_update_params
+    params.permit(:name, :email)
   end
 end

@@ -50,10 +50,9 @@ module WonderfulEditor
     end
     config.api_only = true
     # Task9-1で追加（なにこれ？）
-    # config.session_store :cookie_store, key: '_interslice_session' 
+    # config.session_store :cookie_store, key: '_interslice_session'
     # config.middleware.use ActionDispatch::Cookies
     # config.middleware.use config.session_store, config.session_options
     config.middleware.use ActionDispatch::Flash
-
   end
 end

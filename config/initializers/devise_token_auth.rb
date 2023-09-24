@@ -5,21 +5,21 @@ DeviseTokenAuth.setup do |config|
   # client is responsible for keeping track of the changing tokens. Change
   # this to false to prevent the Authorization header from changing after
   # each request.
-  # config.change_headers_on_each_request = true
+
+  # Task9-1で追記（なにこれ？）
+  # リクエストごとにトークンを更新するかを設定(false=なし)
+  # config.change_headers_on_each_request = true #元々最初からコメントアウトされてた
+  config.change_headers_on_each_request = false #トークンを更新しないように設定した
 
   # By default, users will need to re-authenticate after 2 weeks. This setting
   # determines how long tokens will remain valid after they are issued.
-  # config.token_lifespan = 2.weeks
+  # 模範回答：元々コメントアウトされていた
+  config.token_lifespan = 2.weeks
 
   # Limiting the token_cost to just 4 in testing will increase the performance of
   # your test suite dramatically. The possible cost value is within range from 4
   # to 31. It is recommended to not use a value more than 10 in other environments.
   config.token_cost = Rails.env.test? ? 4 : 10
-
-  # Task9-1で追記（なにこれ？）
-  # リクエストごとにトークンを更新するかを設定(false=なし)
-  config.change_headers_on_each_request = false
-
 
   # Sets the max number of concurrent devices per user, which is 10 by default.
   # After this limit is reached, the oldest tokens will be removed.
@@ -47,14 +47,16 @@ DeviseTokenAuth.setup do |config|
   # config.default_callbacks = true
 
   # Makes it possible to change the headers names
-  # config.headers_names = {
-  #   :'authorization' => 'Authorization',
-  #   :'access-token' => 'access-token',
-  #   :'client' => 'client',
-  #   :'expiry' => 'expiry',
-  #   :'uid' => 'uid',
-  #   :'token-type' => 'token-type'
-  # }
+  # 模範回答
+  # 下記は元々コメントアウトされていた。
+  config.headers_names = {
+    # :'authorization' => 'Authorization', #模範回答ではここだけコメントアウト
+    :'access-token' => 'access-token',
+    :'client' => 'client',
+    :'expiry' => 'expiry',
+    :'uid' => 'uid',
+    :'token-type' => 'token-type'
+  }
 
   # Makes it possible to use custom uid column
   # config.other_uid = "foo"
