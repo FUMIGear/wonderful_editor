@@ -41,9 +41,15 @@ RSpec.configure do |config|
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
+  # Task9-3で追記
+  # config.include Rails.application.routes.url_helpers
+  # config.include AuthorizationSpecHelper, type: :request
+
+
 
   # Factorybotを省略して実行できるように
   config.include FactoryBot::Syntax::Methods
+  # config.include FactoryBot::Syntax::Methods # Task5-3で追記
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
 
@@ -66,5 +72,4 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
-  config.include FactoryBot::Syntax::Methods # Task5-3で追記
 end

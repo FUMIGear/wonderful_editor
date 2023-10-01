@@ -50,7 +50,7 @@ DeviseTokenAuth.setup do |config|
   # 模範回答
   # 下記は元々コメントアウトされていた。
   config.headers_names = {
-    # :'authorization' => 'Authorization', #模範回答ではここだけコメントアウト
+    :'authorization' => 'Authorization', #模範回答ではここだけコメントアウト
     :'access-token' => 'access-token',
     :'client' => 'client',
     :'expiry' => 'expiry',
