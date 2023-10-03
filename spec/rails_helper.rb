@@ -50,6 +50,10 @@ RSpec.configure do |config|
   # Factorybotを省略して実行できるように
   config.include FactoryBot::Syntax::Methods
   # config.include FactoryBot::Syntax::Methods # Task5-3で追記
+
+  # Task9-3で追記
+  config.include Devise::Test::IntegrationHelpers, type: :request
+
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
 

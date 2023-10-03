@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-# 新規登録
 RSpec.describe "Api::V1::Auth::Registrations", type: :request do
+  # 新規登録
   describe "POST /api/v1/auth" do #headerとsubjectは変わらない。
     # subject { post(api_v1_auth_path, params: params)} # routes
     # subject { post(api_v1_auth_path, sign_up_params: params)}
@@ -28,10 +28,10 @@ RSpec.describe "Api::V1::Auth::Registrations", type: :request do
       let(:params_h) { attributes_for(:user)} #ユーザをハッシュで作成（テストで使う）
       let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
       it "ユーザが作成される" do
-        binding.pry # パラメータ確認
+        # binding.pry # パラメータ確認
         # expect { subject }.to change { Article.count }.by(1) # 別にここまで考えなくていいと思ってる。
         subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
-        binding.pry # 実行結果確認
+        # binding.pry # 実行結果確認
         # puts(response.status) #binding.pryやステータス確認で
         res_body = JSON.parse(response.body) #bodyがjson形式なので、ハッシュ形式にした。
         res_head = response.headers #headerのuidがメルアドぽかったので、
@@ -82,6 +82,66 @@ RSpec.describe "Api::V1::Auth::Registrations", type: :request do
         # expect(res["data"]["uid"]).to eq blank
         expect(res["data"]["uid"]).to be_blank #uidが何も無いこと
         expect(response.status).to eq(422) #エラーコード
+      end
+    end
+  end
+
+  # サインイン
+  describe "POST /api/v1/auth/sign_in" do #headerとsubjectは変わらない。
+    # subject { post(api_v1_user_registration_sign_in_path, params: params, headers: headers)}
+    # subject { post 'api/v1/user/registration/sign_in_path', params: params, headers: headers }
+    # subject { post 'http://localhost:3000/api/v1/user/registration/sign_in_path', params: params, headers: headers }
+    # subject { post(api_v1_auth_sign_in_path, params: params, headers: headers)}
+    subject { post(api_v1_user_session_path, params: params, headers: headers)} #ChatGPTに聞いたAPI
+    let(:headers) { {"Content-Type": "application/json"} }
+    let(:user) { create(:user) } # これでuserを作って、この情報をもとにAPIを叩く。
+    # 正常系
+    context "ユーザが存在する場合、ログインできる" do
+      # let(:params_h) { attributes_for(:user)} #ユーザをハッシュで作成（テストで使う）
+      let(:params_h) { {"email": user.email, "password": user.password} }#これでuserから
+      let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
+      it "ログインできる" do
+        # binding.pry # パラメータ確認
+        subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
+        # binding.pry # 実行結果確認
+        # puts(response.status) #binding.pryやステータス確認で
+        res_body = JSON.parse(response.body) #bodyがjson形式なので、ハッシュ形式にした。
+        res_head = response.headers #headerのuidがメルアドぽかったので、
+        # binding.pry
+        # 今回は作ったuserと一致するようにした。
+        expect(res_body["data"]["name"]).to eq user.name
+        expect(res_head["uid"]).to eq user.email
+        expect(response.status).to eq(200)
+      end
+    end
+    # 異常系
+    context "emailが違う" do
+      let(:params_h) { {"email": "テスト", "password": user.password} }#これでuserから
+      let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
+      it "ログインに失敗する" do
+        # binding.pry # パラメータ確認
+        subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
+        # binding.pry # 実行結果確認
+        # puts(response.status) #binding.pryやステータス確認で
+        res = JSON.parse(response.body)
+        # expect(res["data"]["uid"]).to be_blank #uidが何も無いこと
+        expect(res["errors"]).to eq ["Invalid login credentials. Please try again."] #errorメッセージ
+        expect(response.status).to eq(401) #エラーコード
+      end
+    end
+    # 異常系：パスワードが違う場合
+    context "パスワードが違う" do
+      let(:params_h) { {"email": user.email, "password": nil} }#これでuserから
+      let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
+      it "ログインに失敗する" do
+        binding.pry # パラメータ確認
+        subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
+        binding.pry # 実行結果確認
+        # puts(response.status) #binding.pryやステータス確認で
+        res = JSON.parse(response.body)
+        # expect(res["data"]["uid"]).to be_blank #uidが何も無いこと
+        expect(res["errors"]).to eq ["Invalid login credentials. Please try again."] #errorメッセージ
+        expect(response.status).to eq(401) #エラーコード
       end
     end
   end
