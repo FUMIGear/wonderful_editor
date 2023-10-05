@@ -134,14 +134,57 @@ RSpec.describe "Api::V1::Auth::Registrations", type: :request do
       let(:params_h) { {"email": user.email, "password": nil} }#これでuserから
       let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
       it "ログインに失敗する" do
-        binding.pry # パラメータ確認
+        # binding.pry # パラメータ確認
         subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
-        binding.pry # 実行結果確認
+        # binding.pry # 実行結果確認
         # puts(response.status) #binding.pryやステータス確認で
         res = JSON.parse(response.body)
         # expect(res["data"]["uid"]).to be_blank #uidが何も無いこと
         expect(res["errors"]).to eq ["Invalid login credentials. Please try again."] #errorメッセージ
         expect(response.status).to eq(401) #エラーコード
+      end
+    end
+  end
+   # サインアウト (サインインからコピペ)
+   describe "DELETE /api/v1/auth/sign_out" do #headerとsubjectは変わらない。
+    # subject { delete(api_v1_user_session_path, params: params, headers: headers)} #予想してたAPI
+    # subject { delete(api_v1_auth_sign_out_path, params: params, headers: headers)} #ChatGPTに聞いたAPI
+    subject { delete(destroy_api_v1_user_session_path, params: params, headers: headers)} # 参考サイトに載ってたAPI
+    # subject { delete(destroy_api_v1_user_session_path, params: params)} # 変数headersがないとエラーになる
+    let(:headers) { {"Content-Type": "application/json"} }
+    let(:user) { create(:user) } # これでuserを作って、この情報をもとにAPIを叩く。
+    # 正常系
+    context "ユーザが存在し、ヘッダー情報があればログアウトできる" do
+      let(:params_h) { user.create_new_auth_token  } #これでuserからheader情報入手
+      let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
+      it "ログアウトできる" do
+        # binding.pry # パラメータ確認
+        subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
+        # binding.pry # 実行結果確認
+        res_body = JSON.parse(response.body) #bodyがjson形式なので、ハッシュ形式にした。
+        res_head = response.headers #headerのuidがメルアドぽかったので、
+        # binding.pry
+        # puts(response.status) #binding.pryやステータス確認（ダミーみたいなもん）
+        expect(response.status).to eq(200) #これだけでいい気がする（エラーが出た場合のメッセージの方が大事かな）
+      end
+    end
+
+    # 異常系：存在しないヘッダー情報を送る
+    context "ユーザが存在し、ヘッダー情報があればログアウトできる" do
+      # Postamanで確認した必要なヘッダー情報はuid,client,access-token
+      let(:params_h) { user.create_new_auth_token(uid:nil) } #uidを変更して、実行してみた。
+      # let(:params_h) { user.create_new_auth_token(client:nil) } #clientを変更して、実行してみた
+      # let(:params_h) { user.create_new_auth_token("access-token":nil) } #access-tokenを変更して、実行してみた
+      let(:params) { params_h.to_json} #ユーザ情報をjson形式に変換
+      it "ログアウトできる" do
+        # binding.pry # パラメータ確認
+        subject #まずはこれと完了ステータスの確認、responseの中身を見てからテスト結果を考えよ。
+        # binding.pry # 実行結果確認
+        res_body = JSON.parse(response.body) #bodyがjson形式なので、ハッシュ形式にした。
+        res_head = response.headers #headerのuidがメルアドぽかったので、
+        binding.pry
+        expect(res_body["errors"]).to eq ["User was not found or was not logged in."] #errorメッセージ
+        expect(response.status).to eq(404) #エラーコード
       end
     end
   end
