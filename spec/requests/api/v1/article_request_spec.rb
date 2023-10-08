@@ -67,21 +67,26 @@ RSpec.describe "api::v1::Articles", type: :request do
 
   # create
   describe "POST /api/v1/articles" do
-    subject { post(api_v1_articles_path, params: params)}
+    subject { post(api_v1_articles_path, params: params, headers: header)}
     let(:params) { {article: attributes_for(:article)}} #ここを分解しないといけない？
     # let(:user) { create(:user) } #ユーザが必須。変数はいらないかも
     let(:current_user) { create(:user) } #ユーザが必須。変数はいらないかも
+    # Task9-4で追加（headers情報を渡す）
+    # let(:header_h) { current_user.create_new_auth_token  } #これでuserからheader情報入手
+    # let(:header) { header_h.to_json} #ユーザ情報をjson形式に変換
+    let(:header) { current_user.create_new_auth_token  } #データの渡し方にしていなければ、これでいい
     # 正常系
     context "タイトルおよび本文にデータがあり、ログインしている時" do
       it "記事が作成される" do
         # binding.pry #letがちゃんと実行されているか。
-        allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
         # allow_any_instance_of(User).to receive(:current_user).and_return(user)
-        expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
-        # subject #まずはこれと、responseの中身を見てからテスト結果を考えよ。
+        # allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) #Task9-4よりコメントアウトした。
+        # expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1) #模範回答
+        subject #まずはこれと、responseの中身を見てからテスト結果を考えよ。
         # expect { subject }.to change { Article.count }.by(1) #違う。困ったら、subjectを実行して、レスポンスチェック。
-        res = JSON.parse(response.body)
         # binding.pry
+        puts response.status
+        res = JSON.parse(response.body)
         expect(res["title"]).to eq params[:article][:title]
         expect(res["body"]).to eq params[:article][:body]
         expect(res["user"]["id"]).to eq current_user.id
@@ -101,24 +106,27 @@ RSpec.describe "api::v1::Articles", type: :request do
 
   # updateメソッド／hello_world_railsのuserからコピペ
   describe "PATCH api/v1/articles/:id" do #update
-    subject { patch(api_v1_article_path(article.id), params: params) }
+    subject { patch(api_v1_article_path(article.id), params: params, headers: header) } #Task9-5でheader情報追記
     let(:current_user) { create(:user) }
     # まずは記事を作る→異常系をテストする際にcontext内に移した。
-    before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) }
+    # before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) } #Task9-5で不要
     # 変更するタイトルと本文を送る。
-    let(:params) { { article: attributes_for(:article) } }
     # let(:params) { { article: { title: "fff", body: "test" } } } #上はfactoriebotで作った値。これは手動
     # let(:params) { attributes_for(:article, title: 'other') } #この書き方でもいい。
     # let(:params) { article(title:"test") } #書き方が違う
     # let(:article) { create(:article) } #current_userのidと異なる。
     # let(:article_id) { article.id } #article.idに関するテストをしなければ不要→結果不要
+    let(:params) { { article: attributes_for(:article) } }
     # userがnilなら、current_userはUser.fastになる。（current_userが指定されてれば実行しても意味がない。）
+    # Task9-5でheader情報を追記
+    let(:header) { current_user.create_new_auth_token  }
     context "ログインしていて、自分の作った記事の場合" do
       let(:article) { create(:article, user:current_user)}
       it '記事を編集できること' do
         # binding.pry #letで定義した変数の確認
         subject
         # binding.pry #結果を確認
+        # puts response.status
         res = JSON.parse(response.body) #response確認のため
         # binding.pry # テストの条件を考えるため
         expect(response).to have_http_status(:ok) #正常に実行できた場合
@@ -154,9 +162,11 @@ RSpec.describe "api::v1::Articles", type: :request do
   # destroy
   # hellow_world_railsのuser_specから拝借
   describe "DELETE api/v1/articles/:id" do
-    subject { delete(api_v1_article_path(article.id))}
+    subject { delete(api_v1_article_path(article.id), headers:header)} #Task9-5でheaders情報を追記
     let(:current_user) { create(:user) }
-    before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) }
+    # Task9-5でheader情報を追記／ダミーメソッドをコメントアウト
+    # before { allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user) }
+    let(:header) { current_user.create_new_auth_token  }
     context "自分が所持している記事のレコードを削除しようとするとき" do
       let(:article) { create(:article, user: current_user)}
       it "自分で作った記事を削除できる" do

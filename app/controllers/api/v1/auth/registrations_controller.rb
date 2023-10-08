@@ -6,7 +6,7 @@ class Api::V1::Auth::RegistrationsController < DeviseTokenAuth::RegistrationsCon
   # 必要だった。
   def sign_up_params
     # params.permit(:email, :password, :password_confirmation, :name)
-    params.permit(:email, :password, :name)
+    params.permit(:email, :password, :name) #必要最小限の情報は左記なのでこれで進める。
     # params.require(:registration).permit(:name, :email, :password, :password_confirmation) # 自分の回答
     # params.permit(:name, :email, :password, :password_confirmation) #模範回答に合わせた
   end

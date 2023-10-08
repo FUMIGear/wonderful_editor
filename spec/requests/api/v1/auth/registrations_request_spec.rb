@@ -182,7 +182,7 @@ RSpec.describe "Api::V1::Auth::Registrations", type: :request do
         # binding.pry # 実行結果確認
         res_body = JSON.parse(response.body) #bodyがjson形式なので、ハッシュ形式にした。
         res_head = response.headers #headerのuidがメルアドぽかったので、
-        binding.pry
+        # binding.pry
         expect(res_body["errors"]).to eq ["User was not found or was not logged in."] #errorメッセージ
         expect(response.status).to eq(404) #エラーコード
       end

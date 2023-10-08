@@ -1,6 +1,8 @@
 # class Api::V1::ArticlesController < ApplicationController
 class Api::V1::ArticlesController < Api::V1::BaseApiController
   before_action :set_article, only: %i[ show update destroy ]
+  # before_action :authenticate_user!, except: [:index,:show] #Task9-4で追加
+  before_action :authenticate_api_v1_user!, except: [:index,:show] #Task9-4で追加
   # before_action :current_user
   # before_action :set_article, only: %i[ update destroy ]
 
@@ -35,7 +37,8 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
     # binding.pry
     # @article = current_user.article.new(article_params) #上の２行を同時に実行してみた。
     # binding.pry
-    article = current_user.article.create(article_params) #ルーティングが設定されていれば、createメソッドは使える。
+    # article = current_user.article.create(article_params) #ルーティングが設定されていれば、createメソッドは使える。
+    article = current_api_v1_user.article.create(article_params) #Task9-5で変更
     # @article2 = Article.new(article_params, user:current_user) #new→saveメソッドで作ってもいいが、結果的に意味がない。
     # @article2.save
     # binding.pry # 記事ができているか確認
@@ -52,11 +55,13 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # PATCH/PUT /articles/1.json
   def update
     # binding.pry # パラメータ確認
-    article = current_user.article.find(params[:id])
+    # article = current_user.article.find(params[:id])
+    article = current_api_v1_user.article.find(params[:id])
     # Article.find(params[:id]) #これで特定の記事を取得できる。
     # current_userが作成したArticle.find(params[:id])であれば表示される。
     # 違った場合、ActiveRecord::RecordNotFoundというエラーが発生する。
-    if article.user_id == current_user.id #ユーザ確認。
+    # if article.user_id == current_user.id #ユーザ確認。
+    if article.user_id == current_api_v1_user.id #ユーザ確認。
       # binding.pry
       article.update(article_params)
       # @article.update(article_params) #別に@
@@ -75,7 +80,9 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   def destroy
     # binding.pry
     article = current_user.article.find(params[:id])
+    # article = current_api_v1_user.article.find(params[:id])
     if article.user_id == current_user.id #ユーザ確認。
+    # if article.user_id == current_api_v1_user.id #ユーザ確認。
       # binding.pry
       article.destroy
       # binding.pry
