@@ -10,8 +10,16 @@ FactoryBot.define do
     sequence(:title) {|n| "#{n}_#{Faker::Lorem.sentence(word_count: 5)}" }
     # sequence(:title) { Faker::Lorem.characters(number: Random.new.rand(1..20)) }
     body {Faker::Lorem.paragraph(sentence_count: 6)}
-    status{ 0 } #private:0,public:1の設定
     user
+    # status{ 0 } #private:0,public:1の設定
+    # 模範回答
+    trait :draft do
+      status { :draft }
+    end
+
+    trait :published do
+      status { :published }
+    end
   end
   # 模範回答：動けばいいと思ってるので、自分の回答を採用した。
   # factory :article do
