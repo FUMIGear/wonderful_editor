@@ -12,7 +12,8 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # GET /articles.json
   def index
     # @articles = Article.all # 記事を全部取得
-    articles = Article.all.order(updated_at: :desc) # 更新日（昇順）に並べる
+    # articles = Article.all.order(updated_at: :desc) # 更新日（昇順）に並べる
+    articles = Article.where(status: "published").order(updated_at: :desc) # 更新日（昇順）に並べる
     # binding.pry
     # render json: @articles, each_serializer: ArticlesSerializer
     render json: articles, each_serializer: Api::V1::ArticlePreviewSerializer
@@ -79,9 +80,9 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # ほぼupdateのコピペ
   def destroy
     # binding.pry
-    article = current_user.article.find(params[:id])
-    # article = current_api_v1_user.article.find(params[:id])
-    if article.user_id == current_user.id #ユーザ確認。
+    # article = current_user.article.find(params[:id])
+    article = current_api_v1_user.article.find(params[:id])
+    if article.user_id == current_api_v1_user.id #ユーザ確認。
     # if article.user_id == current_api_v1_user.id #ユーザ確認。
       # binding.pry
       article.destroy
@@ -99,7 +100,8 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
     # Only allow a list of trusted parameters through.
     def article_params
       # binding.pry
-      params.require(:article).permit(:title, :body)
+      # params.require(:article).permit(:title, :body)
+      params.require(:article).permit(:title, :body, :status) #Task12よりstatusを追加
       # params.require(:article).permit(:title, :body, :user)
     end
 end

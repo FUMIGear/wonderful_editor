@@ -8,9 +8,9 @@ RSpec.describe "api::v1::Articles", type: :request do
     # subject { get(articles_v1_api_path) } #違う。シンプルにフォルダの階層で考える。
     # before { create_list(:article, 3) } # FactoryBotのメソッドを使って表現した場合 #同時に３つ作れる。
     # Task7-3：模範回答（更新日をずらして、create）
-    let!(:article1) { create(:article, updated_at: 1.days.ago) }
-    let!(:article2) { create(:article, updated_at: 2.days.ago) }
-    let!(:article3) { create(:article) }
+    let!(:article1) { create(:article, updated_at: 1.days.ago, status: :published) }
+    let!(:article2) { create(:article, updated_at: 2.days.ago, status: :draft) }
+    let!(:article3) { create(:article, status: :published) }
     it "ユーザーの一覧が取得できる" do
       # binding.pry #subject前の動作を確認できる。
       subject # 上で定義したURLを実行する。
@@ -22,8 +22,10 @@ RSpec.describe "api::v1::Articles", type: :request do
       # expect(response).to have_http_status(200) #ステータスコードが200（正常終了）かテスト
 
       # Task7-1の模範回答
-      expect(res.map {|d| d["id"] }).to eq [article3.id, article1.id, article2.id] # 日付の順番を確認してる
-      expect(res[0].keys).to eq ["id", "title", "body", "updated_at", "user"] #keyを確認。serializerで設定した値
+      # expect(res.map {|d| d["id"] }).to eq [article3.id, article1.id, article2.id] # 日付の順番を確認してる
+      expect(res.map {|d| d["id"] }).to eq [article3.id, article1.id] # Task11より公開のみ表示
+      # expect(res[0].keys).to eq ["id", "title", "body", "updated_at", "user"] #keyを確認。serializerで設定した値
+      expect(res[0].keys).to eq ["id", "title", "body", "updated_at", "status", "user"] #Task11よりstatusを追加
       # user.keyを確認してる。
       expect(res[0]["user"].keys).to eq ["id", "name", "email"] #userのkeyを確認
     end
@@ -68,7 +70,7 @@ RSpec.describe "api::v1::Articles", type: :request do
   # create
   describe "POST /api/v1/articles" do
     subject { post(api_v1_articles_path, params: params, headers: header)}
-    let(:params) { {article: attributes_for(:article)}} #ここを分解しないといけない？
+    # let(:params) { {article: attributes_for(:article)}} #ここを分解しないといけない？
     # let(:user) { create(:user) } #ユーザが必須。変数はいらないかも
     let(:current_user) { create(:user) } #ユーザが必須。変数はいらないかも
     # Task9-4で追加（headers情報を渡す）
@@ -76,7 +78,8 @@ RSpec.describe "api::v1::Articles", type: :request do
     # let(:header) { header_h.to_json} #ユーザ情報をjson形式に変換
     let(:header) { current_user.create_new_auth_token  } #データの渡し方にしていなければ、これでいい
     # 正常系
-    context "タイトルおよび本文にデータがあり、ログインしている時" do
+    context "タイトルおよび本文にデータがあり、ログインしているとき、公開情報で保存する。" do
+      let(:params) { {article: attributes_for(:article, status:"published")}} #Task12より設定を追加。
       it "記事が作成される" do
         # binding.pry #letがちゃんと実行されているか。
         # allow_any_instance_of(User).to receive(:current_user).and_return(user)
@@ -85,12 +88,27 @@ RSpec.describe "api::v1::Articles", type: :request do
         subject #まずはこれと、responseの中身を見てからテスト結果を考えよ。
         # expect { subject }.to change { Article.count }.by(1) #違う。困ったら、subjectを実行して、レスポンスチェック。
         # binding.pry
-        puts response.status
         res = JSON.parse(response.body)
         expect(res["title"]).to eq params[:article][:title]
         expect(res["body"]).to eq params[:article][:body]
+        expect(res["status"]).to eq params[:article][:status] #Task12で追加。公開非公開設定
         expect(res["user"]["id"]).to eq current_user.id
         # expect(res["user"]["id"]).to eq article.user.id # そもそもarticleないじゃん
+        expect(res["user"].keys).to eq ["id", "name", "email"]
+        expect(response).to have_http_status(200)
+      end
+    end
+    context "タイトルおよび本文にデータがあり、ログインしている時下書きで保存する" do
+      let(:params) { {article: attributes_for(:article, status:"draft")}} #Task12より設定を追加。
+      it "記事が作成される" do
+        # binding.pry #letがちゃんと実行されているか。
+        subject #まずはこれと、responseの中身を見てからテスト結果を考えよ。
+        # binding.pry
+        res = JSON.parse(response.body)
+        expect(res["title"]).to eq params[:article][:title]
+        expect(res["body"]).to eq params[:article][:body]
+        expect(res["status"]).to eq params[:article][:status] #Task12で追加。公開非公開設定
+        expect(res["user"]["id"]).to eq current_user.id
         expect(res["user"].keys).to eq ["id", "name", "email"]
         expect(response).to have_http_status(200)
       end
@@ -116,12 +134,12 @@ RSpec.describe "api::v1::Articles", type: :request do
     # let(:params) { article(title:"test") } #書き方が違う
     # let(:article) { create(:article) } #current_userのidと異なる。
     # let(:article_id) { article.id } #article.idに関するテストをしなければ不要→結果不要
-    let(:params) { { article: attributes_for(:article) } }
+    let(:params) { { article: attributes_for(:article, status:"published") } }
     # userがnilなら、current_userはUser.fastになる。（current_userが指定されてれば実行しても意味がない。）
     # Task9-5でheader情報を追記
     let(:header) { current_user.create_new_auth_token  }
     context "ログインしていて、自分の作った記事の場合" do
-      let(:article) { create(:article, user:current_user)}
+      let(:article) { create(:article, user:current_user, status:"draft")}
       it '記事を編集できること' do
         # binding.pry #letで定義した変数の確認
         subject
@@ -138,6 +156,9 @@ RSpec.describe "api::v1::Articles", type: :request do
           expect(res["body"]).to eq params[:article][:body]
           expect(res["title"]).not_to eq article.title
           expect(res["body"]).not_to eq article.body
+          expect(res["status"]).to eq params[:article][:status] #Task12で追加。公開非公開設定
+          expect(res["status"]).not_to eq article.status #Task12で追加。公開非公開設定
+
         # 模範回答
           # expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
           #   change { article.reload.body }.from(article.body).to(params[:article][:body])
