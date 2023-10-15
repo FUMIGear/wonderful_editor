@@ -23,10 +23,11 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   # GET api/v1/articles/1.json
   def show
     # prtivateメソッドのset_articleメソッドが動いて、@article変数が使えるようになる。
-    # article = Article.find(params[:id])
+    # article = Article.find(params[:id]) #なんでこれ最初からコメントアウトしてるんだ？→ミスっぽい
+    article = Article.published.find(params[:id]) #Task12でpublishedのみ開く設定
     # binding.pry # @articleにデータが入っているか確認
     # render json: article_show, each_serializer: Api::V1::ArticlePreviewSerializer
-    render json: @article, serializer: Api::V1::ArticlePreviewSerializer
+    render json: article, serializer: Api::V1::ArticlePreviewSerializer
   end
 
   # POST api/v1/articles
@@ -94,7 +95,8 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_article
-      @article = Article.find(params[:id])
+      binding.pry
+      article = Article.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

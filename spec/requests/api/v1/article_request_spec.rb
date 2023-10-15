@@ -36,7 +36,7 @@ RSpec.describe "api::v1::Articles", type: :request do
     # subject { get(api_v1_article_path(article.id)) } #正常系のみならこれでよかった。
     subject { get(api_v1_article_path(article_id)) } #あえて存在しないarticle_idを指定するため、article_idを変数にした。
     context "指定したidの記事が存在する場合" do
-      let(:article) { create(:article) } #Factorybotでarticle作成
+      let(:article) { create(:article, :published) } #Factorybotでarticle作成
       let(:article_id) { article.id } #異常系のテストをするため、このような処置
       # binding.pry #articleが問題なくできているか確認、contextの中に書くとindexのテスト前にbinding.pryが動いてしまう。
       it "記事の詳細を取得できる" do
