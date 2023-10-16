@@ -27,9 +27,16 @@ gem "jbuilder", "~> 2.7"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", ">= 1.4.4", require: false
 
+# Task9-2で追加（予想）
+gem "devise" #devise_token_authより先に入れた方がいいらしい
+gem "rack-cors" #CORSの制限を一部解除するgem
+
 # Task4で追加
 gem "active_model_serializers", "~> 0.10.0"
 gem "devise_token_auth"
+
+# Task7-3で追加
+# gem 'active_model_serializers', '~> 0.10.0' #上に同じ情報が載ってる→コメントアウトしとこ
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

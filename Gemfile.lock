@@ -162,6 +162,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.8)
+    rack-cors (2.0.1)
+      rack (>= 2.0.0)
     rack-mini-profiler (2.3.4)
       rack (>= 1.2.0)
     rack-proxy (0.7.6)
@@ -311,6 +313,7 @@ DEPENDENCIES
   annotate
   bootsnap (>= 1.4.4)
   byebug
+  devise
   devise_token_auth
   factory_bot_rails
   faker
@@ -321,6 +324,7 @@ DEPENDENCIES
   pry-doc
   pry-rails
   puma (~> 5.0)
+  rack-cors
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.7, >= 6.1.7.1)
   rails-erd
