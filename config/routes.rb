@@ -1,7 +1,5 @@
 Rails.application.routes.draw do
   root to: "home#index"
-#  テストコメント
-#  テストコメント
 
   # reload 対策
   get "sign_up", to: "home#index"
