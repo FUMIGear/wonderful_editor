@@ -4,12 +4,14 @@ require 'rails_helper'
 # RSpec.describe "Api::V1::Articles", type: :request do
 RSpec.describe "Api::V1::Articles::Drafts", type: :request do
   # index
+  let(:current_user) { create(:user) }
+  let(:headers) { current_user.create_new_auth_token }
   describe "GET /api/v1/articles/drafts" do
     # subject { get(api_v1_articles_drafts_path) } # routesでAPIを確認する。
-    subject { get(api_v1_drafts_path) } # routesでAPIを確認する。
-    let!(:article1) { create(:article, updated_at: 1.days.ago, status: :published) }
-    let!(:article2) { create(:article, updated_at: 2.days.ago, status: :draft) }
-    let!(:article3) { create(:article, status: :published) }
+    subject { get(api_v1_articles_drafts_path, headers: headers) } # routesでAPIを確認する。
+    let!(:article1) { create(:article, updated_at: 1.days.ago, status: :published, user: current_user) }
+    let!(:article2) { create(:article, updated_at: 2.days.ago, status: :draft, user: current_user) }
+    let!(:article3) { create(:article, status: :published, user: current_user) }
     it "ユーザーの一覧が取得できる" do
       # binding.pry #subject前の動作を確認できる。
       subject # 上で定義したURLを実行する。
@@ -25,9 +27,9 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
   # 正常系
   describe "GET /api/v1/articles/drafts/:id" do
     # subject { get(api_v1_article_drafts_path(article_id)) } #あえて存在しないarticle_idを指定するため、article_idを変数にした。
-    subject { get(api_v1_draft_path(article_id)) } #あえて存在しないarticle_idを指定するため、article_idを変数にした。
+    subject { get(api_v1_articles_draft_path(article_id), headers: headers) } #あえて存在しないarticle_idを指定するため、article_idを変数にした。
     context "指定したidの記事が存在する場合" do
-      let(:article) { create(:article, :draft) } #Factorybotでarticle作成
+      let(:article) { create(:article, :draft, user: current_user) } #Factorybotでarticle作成
       let(:article_id) { article.id } #異常系のテストをするため、このような処置
       it "記事の詳細を取得できる" do
         # binding.pry #letの変数がおかしくなってないか確認
@@ -46,7 +48,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
 
     # 異常系：指定したIDが公開設定だった場合→
     context "指定したidが公開設定だった場合" do
-      let(:article) { create(:article, :published) } #Factorybotでarticle作成
+      let(:article) { create(:article, :published, user: current_user) } #Factorybotでarticle作成
       let(:article_id) { article.id } #異常系のテストをするため、このような処置
       it "記事が見つからない" do
         # binding.pry #article_idが10000になっているか、expect文が合っているか確認
@@ -59,7 +61,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     end
     # 異常系：指定したidの記事が存在しない
     context "指定したidの記事が存在しない場合" do
-      let(:article) { create(:article, :draft) }
+      let(:article) { create(:article, :draft, user: current_user) }
       let(:article_id) { 100000 } #subjectのarticle_idを適当な数字にする。
       it "記事が見つからない" do
         # binding.pry #article_idが10000になっているか、expect文が合っているか確認

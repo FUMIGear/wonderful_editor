@@ -95,7 +95,7 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_article
-      binding.pry
+      # binding.pry
       article = Article.find(params[:id])
     end
 
