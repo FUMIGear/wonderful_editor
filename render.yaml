@@ -5,7 +5,8 @@ services:
     env: ruby
     region: singapore
     plan: free
-    branch: master
+    # branch: master
+    branch: main
     numInstances: 1
     healthCheckPath: /
     buildCommand: ./bin/render-build.sh
