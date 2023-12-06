@@ -10,3 +10,4 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
+        - POSTGRES_HOST_AUTH_METHOD=trust #追加した
