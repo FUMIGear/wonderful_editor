@@ -4,7 +4,8 @@ services:
     name: wonderful-editor
     env: ruby
     region: singapore
-    plan: free
+    # plan: free # 無料版
+    # plan: starter #Render.comの有料プラン（プラン名）
     # branch: master
     branch: main
     numInstances: 1
@@ -23,7 +24,8 @@ services:
 databases:
   - name: postgresql-wonderful-editor
     region: singapore
-    plan: free
+    # plan: free
+    # plan: starter #Render.comの有料プラン（プラン名）
     ipAllowList:
       - source: 0.0.0.0/0
         description: everywhere # 学習用
