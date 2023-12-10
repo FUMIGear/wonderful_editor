@@ -5,7 +5,7 @@ services:
     env: ruby
     region: singapore
     # plan: free # 無料版
-    # plan: starter #Render.comの有料プラン（プラン名）
+    plan: starter #Render.comの有料プラン（プラン名）
     # branch: master
     branch: main
     numInstances: 1
@@ -25,7 +25,7 @@ databases:
   - name: postgresql-wonderful-editor
     region: singapore
     # plan: free
-    # plan: starter #Render.comの有料プラン（プラン名）
+    plan: starter #Render.comの有料プラン（プラン名）
     ipAllowList:
       - source: 0.0.0.0/0
         description: everywhere # 学習用
